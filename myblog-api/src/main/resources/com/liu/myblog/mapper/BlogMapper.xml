@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liu.myblog.mapper.BlogMapper">
+    <insert id="insertTag">
+        INSERT INTO t_blog_tag (blog_id, tag_id)
+        VALUES (#{blogId}, #{tagId})
+    </insert>
+
+    <insert id="insertImage">
+        INSERT INTO t_blog_image (blog_id,image_url)
+        VALUES (#{blogId},#{url})
+    </insert>
+    <insert id="addCommentNum">
+        update t_blog
+        set comment_num = comment_num + 1
+        where id = #{blogId}
+    </insert>
+    <insert id="collectBlog">
+        insert into t_collection (blog_id, user_id)
+        VALUES (#{blogId}, #{userId})
+    </insert>
+    <delete id="removeCollectBlog">
+        delete
+        from t_collection
+        where blog_id = #{blogId}
+          and user_id = #{userId}
+    </delete>
+    <update id="deleteBlogById">
+        update t_blog set is_deleted = 1
+        where id = #{blogId}
+    </update>
+    <update id="deleteTagsByBlogId">
+        update t_blog_tag
+        set is_deleted = 1
+        where blog_id = #{blogId}
+    </update>
+    <update id="deleteImagesByBlogId">
+        update t_blog_image
+        set is_deleted = 1
+        where blog_id = #{blogId}
+    </update>
+    <update id="deleteTagsByUserId">
+        update t_blog_tag
+        set is_deleted = 1
+        where blog_id in (select id
+                          from t_blog
+                          where user_id = #{userId})
+    </update>
+    <update id="deleteImagesByUserId">
+        update t_blog_image
+        set is_deleted = 1
+        where blog_id in (select id
+                          from t_blog
+                          where user_id = #{userId})
+    </update>
+    <update id="deleteBlogsByUserId">
+        update t_blog
+        set is_deleted = 1
+        where user_id = #{userId}
+    </update>
+    <update id="countBlogsByCreatedAt"></update>
+
+    <select id="selectTagsByBlogId" resultType="java.lang.Long">
+        SELECT tag_id
+        FROM t_blog_tag
+        WHERE blog_id = #{blogId}
+          AND is_deleted = 0
+        ORDER BY tag_id
+    </select>
+
+    <select id="selectImagesByBlogId" resultType="java.lang.String">
+        SELECT image_url
+        FROM t_blog_image
+        WHERE blog_id = #{blogId}
+          AND is_deleted = 0
+    </select>
+    <select id="selectBlogById" resultType="com.liu.myblog.dao.Blog">
+        select *
+        from t_blog
+        where id = #{id}
+          and is_deleted = 0
+    </select>
+    <select id="selectTitleById" resultType="java.lang.String">
+        select title
+        from t_blog
+        where id = #{blogId}
+          and is_deleted = 0
+    </select>
+    <select id="countDailyBlogs" resultType="java.lang.Long">
+        select count(*)
+        from t_blog
+        where create_time >= #{startDate}
+          and #{endDate} > create_time
+          and is_deleted = 0
+          and status = 1
+    </select>
+
+</mapper>

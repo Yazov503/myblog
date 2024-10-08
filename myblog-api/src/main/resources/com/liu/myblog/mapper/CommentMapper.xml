@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liu.myblog.mapper.CommentMapper">
+
+    <insert id="insertImage">
+        INSERT INTO t_comment_image (comment_id,image_url)
+        VALUES (#{commentId},#{url})
+    </insert>
+
+    <update id="deleteImagesByBlogId">
+        update t_comment_image
+        set is_deleted = 1
+        where comment_id in
+              (select id from t_comment where blog_id = #{blogId} and is_deleted = 0)
+    </update>
+    <update id="deleteCommentsByBlogId">
+        update t_comment
+        set is_deleted = 1
+        where blog_id = #{blogId}
+    </update>
+    <update id="deleteCommentById">
+        update t_comment
+        set is_deleted = 1
+        where id = #{commentId}
+    </update>
+
+    <select id="selectCommentById" resultType="com.liu.myblog.dao.Comment">
+        select *
+        from t_comment
+        where id = #{id}
+          and is_deleted = 0
+    </select>
+    <select id="getDailyCommentCount" resultType="java.lang.Long">
+        select count(*)
+        from t_comment
+        where create_time >= #{startDate} and #{endDate} > create_time
+          and is_deleted = 0
+    </select>
+
+</mapper>

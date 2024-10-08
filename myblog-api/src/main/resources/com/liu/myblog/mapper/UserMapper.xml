@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liu.myblog.mapper.UserMapper">
+    <update id="deleteUserById">
+        update t_user
+        set is_deleted = 1
+        where id = #{userId}
+    </update>
+    <delete id="removeFollow">
+        delete
+        from t_follow
+        where follow_id = #{followId}
+          and user_id = #{userId}
+    </delete>
+    <delete id="addFollow">
+        insert into t_follow (user_id, follow_id)
+        values (#{userId}, #{followId})
+    </delete>
+
+    <select id="selectByEmail" resultType="com.liu.myblog.dao.User">
+        select *
+        from t_user
+        where email = #{email}
+          and is_deleted = 0
+    </select>
+    <select id="selectUserById" resultType="com.liu.myblog.dao.User">
+        select *
+        from t_user
+        where id = #{userId}
+          and is_deleted = 0
+    </select>
+    <select id="selectUsernameByUserId" resultType="java.lang.String">
+        select username
+        from t_user
+        where id = #{userId}
+          and is_deleted = 0
+    </select>
+    <select id="getAvatar" resultType="java.lang.String">
+        select avatar
+        from t_user
+        where id = #{userId}
+          and is_deleted = 0
+    </select>
+    <select id="selectRepliedUsernameByReplyId" resultType="java.lang.String">
+        select username
+        from t_user
+        where id =
+              (select user_id from t_reply where id = (select parent_id from t_reply where t_reply.id = #{replyId}))
+    </select>
+    <select id="checkFollowed" resultType="java.lang.Boolean">
+        select count(1) > 0
+        from t_follow
+        where follow_id = #{followId}
+          and user_id = #{userId}
+    </select>
+    <select id="checkUsername" resultType="java.lang.Boolean">
+        select count(1) > 0
+        from t_user
+        where username = #{username}
+          and is_deleted = 0
+    </select>
+    <select id="checkUsernameWithId" resultType="java.lang.Boolean">
+        select count(1) > 0
+        from t_user
+        where username = #{username}
+          and id != #{userId}
+          and is_deleted = 0
+    </select>
+    <select id="checkEmailWithId" resultType="java.lang.Boolean">
+        select count(1) > 0
+        from t_user
+        where email = #{email}
+          and id != #{userId}
+          and is_deleted = 0
+    </select>
+    <select id="selectAllFollowers" resultType="com.liu.myblog.dao.vo.Follower">
+        select *
+        from t_user
+        where id in (select follow_id from t_follow where user_id = #{userId})
+        order by create_time desc
+    </select>
+</mapper>

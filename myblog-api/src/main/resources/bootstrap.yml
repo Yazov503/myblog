@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: myblog-api
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+        namespace: f1053770-4a4f-4930-a559-23fd62579c26
+      server-addr: localhost:8848
+      config:
+        file-extension: yaml
+        namespace: f1053770-4a4f-4930-a559-23fd62579c26

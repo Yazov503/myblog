@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liu.myblog.mapper.ReplyMapper">
+    <resultMap id="ReplyDtoMap" type="com.liu.myblog.dao.dto.ReplyDto">
+        <id property="id" column="id" />
+        <result property="userId" column="user_id" />
+        <result property="parentId" column="parent_id" />
+        <result property="commentId" column="comment_id" />
+        <result property="content" column="content" />
+        <result property="createTime" column="create_time" />
+        <result property="username" column="username" />
+        <result property="repliedUsername" column="replied_username" />
+    </resultMap>
+    <update id="deleteRepliesByBlogId">
+        update t_reply
+        set is_deleted = 1
+        where comment_id in
+              (select id from t_comment where blog_id = #{blogId} and is_deleted = 0)
+    </update>
+    <update id="deleteReplyById">
+        update t_reply
+        set is_deleted = 1
+        where id = #{replyId}
+    </update>
+    <update id="deleteReplyByCommentId">
+        update t_reply
+        set is_deleted = 1
+        where comment_id = #{commentId}
+    </update>
+
+    <select id="selectByCommentId" resultMap="ReplyDtoMap">
+        SELECT r.id,
+               r.user_id,
+               r.parent_id,
+               r.comment_id,
+               r.content,
+               r.create_time,
+               u.username AS username,
+               ru.username AS replied_username
+        FROM t_reply r
+                 JOIN
+             t_user u ON r.user_id = u.id
+                 LEFT JOIN
+             t_reply rp ON r.parent_id = rp.id
+                 LEFT JOIN
+             t_user ru ON rp.user_id = ru.id
+        WHERE r.comment_id = #{commentId}
+          and r.is_deleted = 0
+          and u.is_deleted = 0
+        ORDER BY r.create_time DESC
+    </select>
+    <select id="selectUserId" resultType="java.lang.Long">
+        select user_id
+        from t_reply
+        where id = #{userId}
+          and is_deleted = 0
+    </select>
+    <select id="getDailyReplyCount" resultType="java.lang.Long">
+        select count(*)
+        from t_reply
+        where create_time >= #{startDate}
+          and #{endDate} > create_time
+          and is_deleted = 0
+    </select>
+
+</mapper>

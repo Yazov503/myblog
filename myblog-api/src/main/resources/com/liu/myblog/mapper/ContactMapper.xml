@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liu.myblog.mapper.ContactMapper">
+    <update id="updateLastContactTime">
+        update t_contacts
+        set last_contact_time = now()
+        where ((user_id = #{senderId} and contact_id = #{receiverId}) or
+               (user_id = #{receiverId} and contact_id = #{senderId}))
+          and is_deleted = 0
+    </update>
+
+    <select id="existContact" resultType="java.lang.Boolean">
+        select count(*) > 0
+        from t_contacts
+        where user_id = #{senderId}
+          and contact_id = #{receiverId}
+          and is_deleted = 0
+    </select>
+</mapper>
